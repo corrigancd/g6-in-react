@@ -7,14 +7,8 @@
 
 <img src="https://github.com/baizn/g6-in-react/blob/master/demo.gif" />
 
-### 功能
-我们提供的Demo，包括了以下功能：
-- 自定义节点；
-- 自定义边；
-- 节点的tooltip；
-- 边的tooltip；
-- 节点的ContextMenu；
-- tooltip及ContextMenu如何渲染自定义的React组件。
+### to do
+
 
 ### Development
 ```

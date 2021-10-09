@@ -4,7 +4,7 @@ import G6 from '@antv/g6';
 import { NodeTooltips, EdgeToolTips, NodeContextMenu } from './component'
 import './registerShape';
 
-export default function() {
+export default function () {
   const ref = React.useRef(null)
   let graph = null
 
@@ -57,7 +57,7 @@ export default function() {
       setNodeToolTipY(point.y + 15)
       setShowNodeTooltip(true)
     })
-  
+
     // 节点上面触发mouseleave事件后隐藏tooltip和ContextMenu
     graph.on('node:mouseleave', () => {
       setShowNodeTooltip(false)
@@ -77,14 +77,27 @@ export default function() {
   }
 
   useEffect(() => {
-    if(!graph) {
+    console.log(graph);
+    if (!graph) {
       const miniMap = new G6.Minimap()
       graph = new G6.Graph({
         container: ref.current,
         width: 1200,
         height: 800,
         modes: {
-          default: ['drag-canvas', 'drag-node']
+          default: [
+            'drag-canvas',
+            'drag-node',
+            {
+              type: 'tooltip', // Tooltip
+              formatText(model) {
+                // The content of tooltip
+                console.log('model: ', model);
+                const text = 'label: ' + model.label + '<br/> class: ' + model.class;
+                return text;
+              },
+            },
+          ]
         },
         defaultNode: {
           shape: 'node',
@@ -126,9 +139,9 @@ export default function() {
         plugins: [miniMap]
       })
     }
-    
+
     graph.data(data)
-  
+
     graph.render()
 
     const edges = graph.getEdges()
@@ -147,9 +160,9 @@ export default function() {
 
   return (
     <div ref={ref}>
-      { showEdgeTooltip && <EdgeToolTips x={edgeTooltipX} y={edgeTooltipY} /> }
-      { showNodeTooltip && <NodeTooltips x={nodeTooltipX} y={nodeTooltipY} /> }
-      { showNodeContextMenu && <NodeContextMenu x={nodeContextMenuX} y={nodeContextMenuY} /> }
+      {showEdgeTooltip && <EdgeToolTips x={edgeTooltipX} y={edgeTooltipY} />}
+      {showNodeTooltip && <NodeTooltips x={nodeTooltipX} y={nodeTooltipY} />}
+      {showNodeContextMenu && <NodeContextMenu x={nodeContextMenuX} y={nodeContextMenuY} />}
     </div>
   );
 }

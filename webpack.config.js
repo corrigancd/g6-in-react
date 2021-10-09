@@ -3,7 +3,7 @@ const path = require('path')
 // eslint-disable-next-line prefer-destructuring
 const resolve = path.resolve;
 const HTMLPlugin = require('html-webpack-plugin');
-const UglifyJSWebpackPlguin  = require('uglifyjs-webpack-plugin')
+const UglifyJSWebpackPlguin = require('uglifyjs-webpack-plugin')
 
 module.exports = {
   entry: {
@@ -44,16 +44,11 @@ module.exports = {
         },
       },
       {
-        test: /\.(css)$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-            },
-          },
-        ]
+        test: /\.css$/,
+        loader: "style-loader!css-loader"
+      }, {
+        test: /\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/,
+        loader: 'file-loader'
       }
     ],
   },
