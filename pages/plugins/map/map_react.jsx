@@ -1,29 +1,39 @@
 import React from "react";
-import { MapContainer, Marker, TileLayer, Popup } from "react-leaflet";
+import ReactDOM from 'react-dom';
+import 'leaflet/dist/leaflet.css';
+import { MapContainer, Marker, TileLayer, Popup, useMap } from "react-leaflet";
+import { MapHelper } from './map_helper';
 
-class Map extends React.Component {
-  constructor(props) {
-    super(props);
+
+const Map = (props) => {
+  const helper = new MapHelper(props)
+
+  function SetLeafletMap() {
+    const leafletMap = useMap();
+    helper.setMap(leafletMap);
+    helper.fitBounds()
+    return null
   }
 
-  render() {
-    return (
-      <MapContainer
-        center={this.props.options.position}
-        zoom={13}
-        scrollWheelZoom={false}
-      >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <Marker position={this.props.options.position}>
-          <Popup>
-            A pretty CSS3 popup. <br /> Easily customizable.
-          </Popup>
-        </Marker>
-      </MapContainer>
-    );
-  }
+  return (
+    <MapContainer
+      center={helper.getCenter()}
+      zoom={1}
+      scrollWheelZoom={true}
+      style={{ height: "600px" }}
+    >
+      <SetLeafletMap />
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <Marker position={props.options.position}>
+        <Popup>
+          A pretty CSS3 popup. <br /> Easily customizable.
+        </Popup>
+      </Marker>
+    </MapContainer>
+  );
 }
 
-let map;
-const getMapInstance = (props) => new Map(props);
-export { getMapInstance };
+
+const createMap = (props, container) => ReactDOM.render(<Map {...props} />, container);
+
+export { createMap };

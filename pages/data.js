@@ -1,114 +1,124 @@
 export const data = {
   nodes: [
     {
-      id: '1',
-      label: '公司1'
+      id: "node0",
+      size: 50,
+      label: "mylabel0",
+      map: { lat: 53.28646258535111, lon: -9.029643393675986 },
     },
     {
-      id: '2',
-      label: '公司2'
+      id: "node1",
+      size: 30,
+      label: "mylabel1",
+      map: { lat: 53.28488955391267, lon: -9.026990027557778 },
     },
     {
-      id: '3',
-      label: '公司3'
+      id: "node2",
+      size: 30,
+      label: "mylabel2",
+      map: { lat: 53.28455026501992, lon: -9.02755018267635 },
     },
     {
-      id: '4',
-      label: '公司4'
+      id: "node3",
+      size: 30,
+      label: "mylabel3",
+      map: { lat: 53.2839157435155, lon: -9.028707345122347 },
     },
     {
-      id: '5',
-      label: '公司5'
+      id: "node4",
+      size: 30,
+      label: "mylabel4",
+      map: { lat: 53.286145339968364, lon: -9.03023303070202 },
     },
     {
-      id: '6',
-      label: '公司6'
+      id: "node5",
+      size: 30,
+      label: "mylabel5",
+      map: { lat: 53.286471397682426, lon: -9.029606541479666 },
     },
     {
-      id: '7',
-      label: '公司7'
+      id: "node6",
+      size: 15,
+      label: "mylabel6",
+      map: { lat: 53.285559311065434, lon: -9.025810753838341 },
     },
     {
-      id: '8',
-      label: '公司8'
+      id: "node7",
+      size: 15,
+      label: "mylabel7",
+      map: { lat: 53.287216033672635, lon: -9.027358550740628 },
     },
     {
-      id: '9',
-      label: '公司9'
-    }
+      id: "node8",
+      size: 15,
+      label: "mylabel8",
+      map: { lat: 53.2857664049043, lon: -9.031788198065748 },
+    },
+    {
+      id: "node9",
+      size: 15,
+      label: "mylabel9",
+      map: { lat: 53.28522443379798, lon: -9.02525059876894 },
+    },
+    {
+      id: "node10",
+      size: 15,
+      label: "mylabel10",
+      map: { lat: 53.283695421348256, lon: -9.02802189227018 },
+    },
+    {
+      id: "node11",
+      size: 15,
+      label: "mylabel11",
+      map: { lat: 53.28273039685706, lon: -9.024845223389772 },
+    },
+    {
+      id: "node12",
+      size: 15,
+      label: "mylabel12",
+      map: { lat: 53.28457229685067, lon: -9.031110115613316 },
+    },
+    {
+      id: "node13",
+      size: 15,
+      label: "mylabel13",
+      map: { lat: 53.28396421424389, lon: -9.030284623932095 },
+    },
+    {
+      id: "node14",
+      size: 15,
+      label: "mylabel14",
+      map: { lat: 53.28335612298389, lon: -9.030034028243154 },
+    },
+    {
+      id: "node15",
+      size: 15,
+      label: "mylabel15",
+      map: { lat: 53.2830344480208, lon: -9.031434415916653 },
+    },
+    {
+      id: "node16",
+      size: 15,
+      label: "mylabel16",
+      map: { lat: 53.28688998164714, lon: -9.030616294744592 },
+    },
   ],
   edges: [
-    {
-      source: '1',
-      target: '2',
-      data: {
-        type: 'name1',
-        amount: '100,000,000,00 元',
-        date: '2019-08-03'
-      }
-    },
-    {
-      source: '1',
-      target: '3',
-      data: {
-        type: 'name2',
-        amount: '100,000,000,00 元',
-        date: '2019-08-03'
-      }
-    },
-    {
-      source: '2',
-      target: '5',
-      data: {
-        type: 'name1',
-        amount: '100,000,000,00 元',
-        date: '2019-08-03'
-      }
-    },
-    {
-      source: '5',
-      target: '6',
-      data: {
-        type: 'name2',
-        amount: '100,000,000,00 元',
-        date: '2019-08-03'
-      }
-    },
-    {
-      source: '3',
-      target: '4',
-      data: {
-        type: 'name3',
-        amount: '100,000,000,00 元',
-        date: '2019-08-03'
-      }
-    },
-    {
-      source: '4',
-      target: '7',
-      data: {
-        type: 'name2',
-        amount: '100,000,000,00 元',
-        date: '2019-08-03'
-      }
-    },
-    {
-      source: '1',
-      target: '8',
-      data: {
-        type: 'name2',
-        amount: '100,000,000,00 元',
-        date: '2019-08-03'
-      }
-    },
-    {
-      source: '1',
-      target: '9',
-      data: {
-        type: 'name3',
-        amount: '100,000,000,00 元',
-        date: '2019-08-03'
-      }
-    }
-  ]
+    { source: "node0", target: "node1" },
+    { source: "node0", target: "node2" },
+    { source: "node0", target: "node3" },
+    { source: "node0", target: "node4" },
+    { source: "node0", target: "node5" },
+    { source: "node1", target: "node6" },
+    { source: "node1", target: "node7" },
+    { source: "node2", target: "node8" },
+    { source: "node2", target: "node9" },
+    { source: "node2", target: "node10" },
+    { source: "node2", target: "node11" },
+    { source: "node2", target: "node12" },
+    { source: "node2", target: "node13" },
+    { source: "node3", target: "node14" },
+    { source: "node3", target: "node15" },
+    { source: "node3", target: "node16" },
+  ],
 };
