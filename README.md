@@ -1,14 +1,12 @@
-### 如何在React中使用G6？
-在平时的答疑工作中，经常会遇到「如何在React中使用G6」的问题，为了让G6用户能够在开发中很方便地接入G6，我们提供一个G6在React中使用的Demo，供开发者参考。
 
-`说明：鉴于目前React hooks比较🔥， 且大多数React开发者已经在使用hooks进行业务开发，因此，我们提供的Demo也是基于hooks的。`
-
-更详细的内容请参考[React中使用G6](https://www.yuque.com/antv/g6/zmfur7)文档。
 
 <img src="https://github.com/baizn/g6-in-react/blob/master/demo.gif" />
 
+Overlaying leafletjs on a g6 graph instance
+
 ### to do
 
+Use force mode to ensure the set container coords are adhered to - https://g6.antv.vision/en/docs/manual/middle/layout/graph-layout#gforce
 
 ### Development
 ```

@@ -12,6 +12,7 @@ const Map = (props) => {
     const leafletMap = useMap();
     helper.setMap(leafletMap);
     helper.fitBounds()
+    helper.enterMapMode();
     return null
   }
 
@@ -20,7 +21,7 @@ const Map = (props) => {
       center={helper.getCenter()}
       zoom={1}
       scrollWheelZoom={true}
-      style={{ height: "600px" }}
+      style={{ height: props.specs.heightPx }}
     >
       <SetLeafletMap />
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />

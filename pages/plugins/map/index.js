@@ -31,8 +31,8 @@ class Map extends Base {
       options: {
         position: [0, 0],
       },
-      nodes: graph.getNodes(),
-      specs: this.specs
+      specs: this.specs,
+      graph
     };
 
     createMap(mapProps, mapContainer);

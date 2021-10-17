@@ -1,12 +1,18 @@
 export class MapHelper {
-  getCoords = () => this.nodes.map((node) => node.getModel().map);
-  getLatLngs = () => this.coords.map((coord) => L.latLng(coord));
+  getCoords = (nodes) => nodes.map((node) => node.getModel().map);
+
+  getLatLngs = (nodes) => {
+    const coords = this.getCoords(nodes);
+    return coords.map((coord) => L.latLng(coord));
+  };
+
   setMap = (map) => (this.leafletMap = map);
 
-  constructor(props) {
-    this.nodes = props.nodes;
-    this.coords = this.getCoords();
-    this.latLngs = this.getLatLngs();
+  constructor({ graph }) {
+    this.graph = graph;
+    this.nodes = graph.getNodes();
+    this.coords = this.getCoords(this.nodes);
+    this.latLngs = this.getLatLngs(this.nodes);
   }
 
   getCenter = () => {
@@ -17,5 +23,23 @@ export class MapHelper {
     return [getAvg("lat"), getAvg("lon")];
   };
 
-  fitBounds = () => this.leafletMap.fitBounds(this.latLngs);
+  enterMapMode = () => {
+    const data = this.graph.save();
+    const latLngs = this.getLatLngs(this.graph.getNodes());
+
+    for (let i = 0; i < latLngs.length - 1; i++) {
+      const latLng = this.latLngs[i];
+      const containerPoint = this.leafletMap.latLngToContainerPoint(latLng);
+      console.log(containerPoint);
+      data.nodes[i].x = containerPoint.x;
+      data.nodes[i].y = containerPoint.y;
+    }
+
+    this.graph.changeData(data);
+  };
+
+  fitBounds = (latLngs) => {
+    const latLngsToUse = latLngs ? latLngs : this.latLngs;
+    this.leafletMap.fitBounds(latLngsToUse);
+  };
 }
