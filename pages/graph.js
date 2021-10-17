@@ -3,29 +3,30 @@ import G6 from "@antv/g6";
 import { Map } from "./plugins/map";
 import { data } from "./data";
 
-
-
 const specs = {
   width: 900,
   height: 600,
+  get widthPx() {
+    return this.width + 'px'
+  },
+  get heightPx() {
+    return this.height + 'px'
+  }
 };
 
-const Test = () => {
+const Graph = () => {
   const ref = React.useRef(null);
   let graph = null;
 
   const map = new Map(specs);
   useEffect(() => {
     if (!graph) {
-      // 实例化 Minimap
-      const minimap = new G6.Minimap();
 
-      // 实例化 Graph
       graph = new G6.Graph({
         container: ref.current,
         width: specs.width,
         height: specs.height,
-        plugins: [minimap],
+        // plugins: [minimap],
         modes: {
           default: [
             "drag-canvas",
@@ -113,7 +114,7 @@ const Test = () => {
     });
   }, []);
 
-  return <div ref={ref}></div>;
+  return <div className="graph-container" ref={ref}></div>;
 };
 
-export { Test };
+export { Graph };

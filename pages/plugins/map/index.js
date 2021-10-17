@@ -15,27 +15,24 @@ class Map extends Base {
 
   init = function () {
     const graph = this.get("graph");
-    const minZoom = graph.get("minZoom");
     const graphContainer = graph.get("container");
     const canvas = graph.get("canvas").get("el");
-    const width = graph.get("width");
-    const height = graph.get("height");
 
     const mapContainer = L.DomUtil.create("div");
     (0, _modifyCss.default)(mapContainer, {
       position: "absolute",
-      width: width + "px",
-      height: height + "px",
-      left: "0px",
-      top: "0px",
+      width: this.specs.widthPx,
+      height: this.specs.heightPx,
+      position: "absolute",
       "z-index": -1,
     });
 
     const mapProps = {
       options: {
-        position: [51.505, -0.09],
+        position: [0, 0],
       },
-      nodes: graph.getNodes()
+      nodes: graph.getNodes(),
+      specs: this.specs
     };
 
     createMap(mapProps, mapContainer);
