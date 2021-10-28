@@ -4,21 +4,16 @@ import { Map } from "./plugins/map";
 import { data } from "./data";
 
 const specs = {
-  width: 900,
-  height: 600,
-  get widthPx() {
-    return this.width + 'px'
-  },
-  get heightPx() {
-    return this.height + 'px'
-  }
+  width: 1200,
+  height: 900,
 };
+
+let graph = null;
+let map = null;
 
 const Graph = () => {
   const ref = React.useRef(null);
-  let graph = null;
 
-  const map = new Map(specs);
   useEffect(() => {
     if (!graph) {
 
@@ -89,13 +84,12 @@ const Graph = () => {
             lineWidth: 3,
           },
         },
+        animate: true
       });
     }
 
     graph.data(data);
     graph.render();
-
-    graph.addPlugin(map);
 
     graph.on("node:mouseenter", (evt) => {
       graph.setItemState(evt.item, "hover", true);
@@ -114,7 +108,23 @@ const Graph = () => {
     });
   }, []);
 
-  return <div className="graph-container" ref={ref}></div>;
+  const toggleMap = () => {
+    if (!map) {
+      map = new Map();
+      graph.addPlugin(map);
+    } else {
+      map.destroy()
+      graph.removePlugin(map);
+      graph.render()
+      map = null;
+    }
+  }
+
+  return (
+    <>
+      <button type="button" onClick={toggleMap}>Toggle map mode</button>
+      <div className="graph-container" ref={ref}></div>
+    </>);
 };
 
 export { Graph };

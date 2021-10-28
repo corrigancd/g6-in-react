@@ -1,3 +1,6 @@
+import React from 'react';
+import { CircleMarker, Popup } from "react-leaflet";
+
 export class MapHelper {
   getCoords = (nodes) => nodes.map((node) => node.getModel().map);
 
@@ -23,23 +26,23 @@ export class MapHelper {
     return [getAvg("lat"), getAvg("lon")];
   };
 
-  enterMapMode = () => {
-    const data = this.graph.save();
-    const latLngs = this.getLatLngs(this.graph.getNodes());
-
-    for (let i = 0; i < latLngs.length - 1; i++) {
-      const latLng = this.latLngs[i];
-      const containerPoint = this.leafletMap.latLngToContainerPoint(latLng);
-      console.log(containerPoint);
-      data.nodes[i].x = containerPoint.x;
-      data.nodes[i].y = containerPoint.y;
-    }
-
-    this.graph.changeData(data);
-  };
+  createLayerFromNodes = () => {
+    return this.graph.getNodes().map(node => {
+      const model = node.getModel();
+      return <CircleMarker
+        key={model.id}
+        center={[model.map.lat, model.map.lon]}
+        radius={model.size}
+      >
+        <Popup>
+          The city is {model.label}
+        </Popup>
+      </CircleMarker>
+    })
+  }
 
   fitBounds = (latLngs) => {
     const latLngsToUse = latLngs ? latLngs : this.latLngs;
-    this.leafletMap.fitBounds(latLngsToUse);
+    this.leafletMap.fitBounds(latLngsToUse, { padding: [5, 5] });
   };
 }
