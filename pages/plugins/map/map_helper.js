@@ -1,8 +1,16 @@
-import React from 'react';
-import { CircleMarker, Popup } from "react-leaflet";
+import React from "react";
+import { CircleMarker, LayerGroup, Polyline, Popup } from "react-leaflet";
 
 export class MapHelper {
   getCoords = (nodes) => nodes.map((node) => node.getModel().map);
+  updateNodesAndEdges = () => {
+    this.edges = this.graph.getEdges();
+    this.nodes = this.graph.getNodes();
+  };
+
+  toModel(items) {
+    return items.map((item) => item.getModel());
+  }
 
   getLatLngs = (nodes) => {
     const coords = this.getCoords(nodes);
@@ -13,7 +21,7 @@ export class MapHelper {
 
   constructor({ graph }) {
     this.graph = graph;
-    this.nodes = graph.getNodes();
+    this.updateNodesAndEdges();
     this.coords = this.getCoords(this.nodes);
     this.latLngs = this.getLatLngs(this.nodes);
   }
@@ -26,20 +34,51 @@ export class MapHelper {
     return [getAvg("lat"), getAvg("lon")];
   };
 
-  createLayerFromNodes = () => {
-    return this.graph.getNodes().map(node => {
-      const model = node.getModel();
-      return <CircleMarker
-        key={model.id}
-        center={[model.map.lat, model.map.lon]}
-        radius={model.size}
-      >
-        <Popup>
-          The city is {model.label}
-        </Popup>
-      </CircleMarker>
-    })
+  createCirclesFromNodes() {
+    const nodes = this.toModel(this.nodes);
+    return nodes.map((node) => {
+      return (
+        <CircleMarker
+          key={node.id}
+          center={[node.map.lat, node.map.lon]}
+          radius={node.size}
+        >
+          <Popup>The city is {node.label}</Popup>
+        </CircleMarker>
+      );
+    });
   }
+
+  createLinesFromEdges() {
+    const edges = this.toModel(this.edges);
+    const nodes = this.toModel(this.nodes);
+    return edges.map((edge) => {
+      const sourceNode = nodes.find((node) => node.id === edge.source);
+      const targetNode = nodes.find((node) => node.id === edge.target);
+
+      return (
+        <Polyline
+          key={edge.id}
+          positions={[
+            [sourceNode.map.lat, sourceNode.map.lon],
+            [targetNode.map.lat, targetNode.map.lon],
+          ]}
+          color={edge.style.hover.stroke}
+          weight={edge.style.hover.lineWidth}
+        ></Polyline>
+      );
+    });
+  }
+
+  createLayerFromModel = () => {
+    this.updateNodesAndEdges();
+    return (
+      <>
+        {<LayerGroup>{this.createLinesFromEdges()}</LayerGroup>}
+        {<LayerGroup>{this.createCirclesFromNodes()}</LayerGroup>}
+      </>
+    );
+  };
 
   fitBounds = (latLngs) => {
     const latLngsToUse = latLngs ? latLngs : this.latLngs;

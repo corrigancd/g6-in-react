@@ -9,7 +9,6 @@ import {
   TileLayer,
   Popup,
   useMap,
-  LayerGroup,
 } from "react-leaflet";
 import { MapHelper } from "./map_helper";
 
@@ -23,7 +22,7 @@ const Map = (props) => {
   }
 
   const renderLayerFromNodes = () => {
-    return <LayerGroup>{helper.createLayerFromNodes()}</LayerGroup>;
+    return helper.createLayerFromModel();
   };
 
   return (
