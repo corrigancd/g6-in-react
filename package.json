@@ -30,6 +30,7 @@
     "@antv/g6": "^3.4.0",
     "@react-leaflet/core": "^1.0.2",
     "antd": "^3.23.5",
+    "deck.gl": "^8.6.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^4.2.0",
     "leaflet": "github:corrigancd/Leaflet#external-canvas",

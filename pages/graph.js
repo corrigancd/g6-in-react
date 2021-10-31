@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import G6 from "@antv/g6";
-import { Map } from "./plugins/map";
+import { ReactLeafletMap } from "./plugins/react_leaflet";
+import { DeckGlMap } from "./plugins/deckgl";
 import { data } from "./data";
 
 const specs = {
@@ -110,7 +111,8 @@ const Graph = () => {
 
   const toggleMap = () => {
     if (!map) {
-      map = new Map();
+      map = new DeckGlMap();
+      // map = new ReactLeafletMap();
       graph.addPlugin(map);
     } else {
       map.destroy()

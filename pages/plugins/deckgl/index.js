@@ -5,9 +5,9 @@ import * as _tslib from "tslib";
 import * as _createDom from "@antv/dom-util/lib/create-dom";
 import * as _modifyCss from "@antv/dom-util/lib/modify-css";
 import Base from "@antv/g6/lib/plugins/base";
-import { createMap } from "./map_react.jsx";
+import { createMap } from "./map_deckgl";
 
-class Map extends Base {
+class DeckGlMap extends Base {
   constructor() {
     super();
     this.graph;
@@ -65,4 +65,4 @@ class Map extends Base {
 
 }
 
-export { Map };
+export { DeckGlMap };
