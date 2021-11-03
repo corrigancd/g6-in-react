@@ -8,31 +8,18 @@ import { BitmapLayer, PathLayer } from "@deck.gl/layers";
 import { MapHelper } from "./map_helper";
 
 const Map = (props) => {
-  const graph = props.graph;
-  const view = new MapView({ repeat: true });
-  const helper = new MapHelper({ ...props, view });
-  const center = helper.getCenter();
-  // helper.fitBounds();
+  const helper = new MapHelper({ ...props });
+  const { latitude, longitude, zoom } = helper.fitBounds();
 
   // Viewport settings
   const INITIAL_VIEW_STATE = {
-    latitude: center[0],
-    longitude: center[1],
-    // latitude: 56,
-    // longitude: 9,
-    zoom: 3,
+    latitude,
+    longitude,
+    zoom,
     maxZoom: 20,
-    // maxPitch: 89,
     pitch: 45,
     bearing: 0,
   };
-
-  // latitude: 49.254,
-  // longitude: -123.13,
-  // zoom: 11,
-  // maxZoom: 16,
-  // pitch: 45,
-  // bearing: 0
 
   const COPYRIGHT_LICENSE_STYLE = {
     position: "absolute",
@@ -113,7 +100,7 @@ const Map = (props) => {
   return (
     <DeckGL
       layers={[tileLayer]}
-      views={view}
+      // views={view}
       initialViewState={INITIAL_VIEW_STATE}
       controller={true}
       getTooltip={getTooltip}

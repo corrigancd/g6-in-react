@@ -1,4 +1,5 @@
 import React from "react";
+import { WebMercatorViewport } from '@deck.gl/core';
 
 export class MapHelper {
   getCoords = (nodes) => nodes.map((node) => node.map);
@@ -18,9 +19,8 @@ export class MapHelper {
 
   setMap = (map) => (this.leafletMap = map);
 
-  constructor({ graph, view }) {
+  constructor({ graph }) {
     this.graph = graph;
-    this.view = view;
     this.updateNodesAndEdges();
     this.coords = this.getCoords(this.nodes);
     this.latLngs = this.getLatLngs(this.nodes);
@@ -86,6 +86,10 @@ export class MapHelper {
   };
 
   fitBounds = () => {
+    const view = new WebMercatorViewport({
+      width: this.graph.getWidth(),
+      height: this.graph.getHeight(),
+    });
     const nodes = this.toModel(this.graph.getNodes());
     const coords = this.getCoords(nodes);
     let latMin = 90;
@@ -106,6 +110,8 @@ export class MapHelper {
       [lonMax, latMin],
     ];
 
-    this.view.fitBounds(bounds, { padding: [5, 5] });
+    const { longitude, latitude, zoom } = view.fitBounds(bounds, { padding: { top: 5, bottom: 5, left: 5, right: 5 } });
+
+    return { longitude, latitude, zoom }
   };
 }

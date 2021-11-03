@@ -9,6 +9,11 @@ const specs = {
   height: 900,
 };
 
+const { DECKGL, LEAFLET } = {
+  DECKGL: 'deckgl',
+  LEAFLET: 'leaflet'
+}
+
 let graph = null;
 let map = null;
 
@@ -109,10 +114,14 @@ const Graph = () => {
     });
   }, []);
 
-  const toggleMap = () => {
-    if (!map) {
-      map = new DeckGlMap();
-      // map = new ReactLeafletMap();
+  const toggleMap = (type) => {
+    if (!map || type !== map.type) {
+      if (type === DECKGL) {
+        map = new DeckGlMap();
+      } else if (type === LEAFLET) {
+        map = new ReactLeafletMap();
+      }
+      map.type = type;
       graph.addPlugin(map);
     } else {
       map.destroy()
@@ -124,7 +133,9 @@ const Graph = () => {
 
   return (
     <>
-      <button type="button" onClick={toggleMap}>Toggle map mode</button>
+      <button type="button" onClick={() => toggleMap(LEAFLET)}>Toggle leaflet mode</button>
+      &nbsp;
+      <button type="button" onClick={() => toggleMap(DECKGL)}>Toggle deck.gl mode</button>
       <div className="graph-container" ref={ref}></div>
     </>);
 };
