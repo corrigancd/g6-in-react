@@ -116,6 +116,8 @@ const Graph = () => {
 
   const toggleMap = (type) => {
     if (!map || type !== map.type) {
+      if (map && map.destroy) map.destroy();
+
       if (type === DECKGL) {
         map = new DeckGlMap();
       } else if (type === LEAFLET) {
