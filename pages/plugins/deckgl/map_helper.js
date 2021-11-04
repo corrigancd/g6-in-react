@@ -1,34 +1,28 @@
 import React from "react";
 import { WebMercatorViewport } from '@deck.gl/core';
 
+function random_rgba() {
+  var o = Math.round, r = Math.random, s = 255;
+  return [o(r() * s), o(r() * s), o(r() * s), r().toFixed(1)];
+}
+
 export class MapHelper {
   getCoords = (nodes) => nodes.map((node) => node.map);
-  updateNodesAndEdges = () => {
-    this.edges = this.graph.getEdges();
-    this.nodes = this.graph.getNodes();
-  };
 
   toModel(items) {
     return items.map((item) => item.getModel());
   }
 
-  getLatLngs = (nodes) => {
-    const coords = this.getCoords(nodes);
-    return coords.map((coord) => L.latLng(coord));
-  };
-
-  setMap = (map) => (this.leafletMap = map);
-
   constructor({ graph }) {
     this.graph = graph;
-    this.updateNodesAndEdges();
-    this.coords = this.getCoords(this.nodes);
-    this.latLngs = this.getLatLngs(this.nodes);
+    this.view = new WebMercatorViewport({
+      width: this.graph.getWidth(),
+      height: this.graph.getHeight(),
+    });
   }
 
   getCenter = () => {
-    this.updateNodesAndEdges();
-    const nodes = this.toModel(this.nodes);
+    const nodes = this.toModel(this.graph.getNodes());
     const getAvg = (type) => {
       const sum = this.getCoords(nodes).reduce(
         (total, value) => total + value[type],
@@ -40,7 +34,7 @@ export class MapHelper {
   };
 
   createCirclesFromNodes() {
-    const nodes = this.toModel(this.nodes);
+    const nodes = this.toModel(this.graph.getNodes());
     return nodes.map((node) => {
       return (
         <CircleMarker
@@ -55,8 +49,8 @@ export class MapHelper {
   }
 
   createLinesFromEdges() {
-    const edges = this.toModel(this.edges);
-    const nodes = this.toModel(this.nodes);
+    const edges = this.toModel(this.graph.getEdges());
+    const nodes = this.toModel(this.graph.getNodes());
     return edges.map((edge) => {
       const sourceNode = nodes.find((node) => node.id === edge.source);
       const targetNode = nodes.find((node) => node.id === edge.target);
@@ -76,7 +70,6 @@ export class MapHelper {
   }
 
   createLayerFromModel = () => {
-    this.updateNodesAndEdges();
     return (
       <>
         {<LayerGroup>{this.createLinesFromEdges()}</LayerGroup>}
@@ -86,10 +79,6 @@ export class MapHelper {
   };
 
   fitBounds = () => {
-    const view = new WebMercatorViewport({
-      width: this.graph.getWidth(),
-      height: this.graph.getHeight(),
-    });
     const nodes = this.toModel(this.graph.getNodes());
     const coords = this.getCoords(nodes);
     let latMin = 90;
@@ -110,8 +99,59 @@ export class MapHelper {
       [lonMax, latMin],
     ];
 
-    const { longitude, latitude, zoom } = view.fitBounds(bounds, { padding: { top: 5, bottom: 5, left: 5, right: 5 } });
+    const { longitude, latitude, zoom } = this.view.fitBounds(bounds, { padding: { top: 100, bottom: 100, left: 100, right: 100 } });
 
     return { longitude, latitude, zoom }
   };
+
+  getEdgeData = ({ minSize = 0, maxSize = 999999 } = {}) => {
+    const nodes = this.toModel(this.graph.getNodes());
+    const edges = this.toModel(this.graph.getEdges());
+    const largestSize = Math.max(...nodes.map(node => node.size));
+
+    return edges
+      .filter(edge => {
+        const sourceNode = nodes.find((node) => node.id === edge.source);
+        return sourceNode.size >= minSize && sourceNode.size <= maxSize;
+      })
+      .map((edge) => {
+        const sourceNode = nodes.find((node) => node.id === edge.source);
+        const targetNode = nodes.find((node) => node.id === edge.target);
+        const height = 1; //sourceNode.size / largestSize; useful if you want data specific arc heights
+
+        const point = {
+          inbound: [255, 0, 0],
+          outbound: [0, 255, 0],
+          mono: [0, 0, 255],
+          height,
+          label: `${sourceNode.label} to ${targetNode.label}`,
+          from: {},
+          to: {},
+        };
+
+        const assignAttributes = (obj, info) => {
+          obj.name = info.label;
+          obj.coordinates = [info.map.lon, info.map.lat];
+        }
+
+        assignAttributes(point.from, sourceNode);
+        assignAttributes(point.to, targetNode);
+        return point;
+      });
+  }
+
+  getIconData = () => {
+    const nodes = this.toModel(this.graph.getNodes());
+
+    return nodes.map(node => {
+      return {
+        name: node.label,
+        label: node.label,
+        coordinates: [node.map.lon, node.map.lat],
+        color: random_rgba()
+      }
+    });
+
+
+  }
 }

@@ -2,14 +2,15 @@ import "./../../../pages/styles.less";
 import React from "react";
 import ReactDOM from "react-dom";
 import DeckGL from "@deck.gl/react";
-import { MapView } from "@deck.gl/core";
 import { TileLayer } from "@deck.gl/geo-layers";
-import { BitmapLayer, PathLayer } from "@deck.gl/layers";
+import { ArcLayer, BitmapLayer, IconLayer, LineLayer } from "@deck.gl/layers";
 import { MapHelper } from "./map_helper";
+import { ICON_MAPPING } from "./constants";
 
 const Map = (props) => {
   const helper = new MapHelper({ ...props });
   const { latitude, longitude, zoom } = helper.fitBounds();
+  let _viewState = null;
 
   // Viewport settings
   const INITIAL_VIEW_STATE = {
@@ -40,67 +41,95 @@ const Map = (props) => {
   const devicePixelRatio =
     (typeof window !== "undefined" && window.devicePixelRatio) || 1;
 
-  function getTooltip({ tile }) {
-    return tile && `tile: x: ${tile.x}, y: ${tile.y}, z: ${tile.z}`;
+  function getTooltip({ object }) {
+    return object && object.label;
   }
 
-  const tileLayer = new TileLayer({
-    // https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers
-    data: [
-      "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    ],
+  const layers = [
+    new TileLayer({
+      // https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers
+      data: [
+        "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      ],
 
-    // Since these OSM tiles support HTTP/2, we can make many concurrent requests
-    // and we aren't limited by the browser to a certain number per domain.
-    maxRequests: 20,
+      // Since these OSM tiles support HTTP/2, we can make many concurrent requests
+      // and we aren't limited by the browser to a certain number per domain.
+      maxRequests: 20,
 
-    pickable: true,
-    // onViewportLoad: onTilesLoad,
-    // autoHighlight: showBorder,
-    highlightColor: [60, 60, 60, 40],
-    // https://wiki.openstreetmap.org/wiki/Zoom_levels
-    minZoom: 0,
-    maxZoom: 19,
-    tileSize: 256,
-    zoomOffset: devicePixelRatio === 1 ? -1 : 0,
-    renderSubLayers: (props) => {
-      const {
-        bbox: { west, south, east, north },
-      } = props.tile;
+      // pickable: true,
+      // onViewportLoad: onTilesLoad,
+      // autoHighlight: showBorder,
+      highlightColor: [60, 60, 60, 40],
+      // https://wiki.openstreetmap.org/wiki/Zoom_levels
+      minZoom: 0,
+      maxZoom: 19,
+      tileSize: 256,
+      zoomOffset: devicePixelRatio === 1 ? -1 : 0,
+      renderSubLayers: (props) => {
+        const {
+          bbox: { west, south, east, north },
+        } = props.tile;
 
-      return [
-        new BitmapLayer(props, {
-          data: null,
-          image: props.data,
-          bounds: [west, south, east, north],
-        }),
-        // showBorder &&
-        //   new PathLayer({
-        //     id: `${props.id}-border`,
-        //     visible: props.visible,
-        //     data: [
-        //       [
-        //         [west, north],
-        //         [west, south],
-        //         [east, south],
-        //         [east, north],
-        //         [west, north],
-        //       ],
-        //     ],
-        //     getPath: (d) => d,
-        //     getColor: [255, 0, 0],
-        //     widthMinPixels: 4,
-        //   }),
-      ];
-    },
-  });
+        return [
+          new BitmapLayer(props, {
+            data: null,
+            image: props.data,
+            bounds: [west, south, east, north],
+          })
+        ];
+      },
+    }),
+    new ArcLayer({
+      id: 'arc',
+      data: helper.getEdgeData({ minSize: 0, maxSize: 15 }),
+      getWidth: 2,
+      pickable: true,
+      getHeight: d => d.height,
+      getSourcePosition: d => d.from.coordinates,
+      getTargetPosition: d => d.to.coordinates,
+      getSourceColor: d => d.inbound,
+      getTargetColor: d => d.outbound,
+    }),
+    new LineLayer({
+      id: 'line',
+      data: helper.getEdgeData(),
+      getWidth: 4,
+      pickable: true,
+      getHeight: d => d.height,
+      getSourcePosition: d => d.from.coordinates,
+      getTargetPosition: d => d.to.coordinates,
+      getColor: d => d.mono,
+    }),
+    new IconLayer({
+      id: 'icon-layer',
+      data: helper.getIconData(),
+      pickable: true,
+      // iconAtlas and iconMapping are required
+      // getIcon: return a string
+      iconAtlas: 'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
+      iconMapping: ICON_MAPPING,
+      getIcon: d => 'marker',
+
+      billboard: true,
+      sizeScale: 1,
+      getPosition: d => d.coordinates,
+      getSize: d => 50,
+      getColor: d => d.color,
+    }),
+  ];
+
+
+  // useful for persisting viewState if that was ever desirable
+  const setViewState = (viewState) => _viewState = viewState;
+  const getViewState = () => _viewState;
 
   return (
     <DeckGL
-      layers={[tileLayer]}
-      // views={view}
+      layers={layers}
+      viewState={getViewState()}
+      onViewStateChange={e => setViewState(e.viewState)}
       initialViewState={INITIAL_VIEW_STATE}
       controller={true}
       getTooltip={getTooltip}

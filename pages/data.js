@@ -118,7 +118,7 @@ export const data = {
     { source: "berlin", target: "baku" },
     { source: "berlin", target: "madrid" },
     { source: "moscow", target: "helsinki" },
-    { source: "moscow", target: "stockholm" },
+    { source: "moscow", target: "muscat" },
     { source: "moscow", target: "kyiv" },
   ],
 };
