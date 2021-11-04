@@ -1,9 +1,3 @@
-import L from "leaflet";
-import "tilelayer-canvas";
-
-import * as _tslib from "tslib";
-import * as _createDom from "@antv/dom-util/lib/create-dom";
-import * as _modifyCss from "@antv/dom-util/lib/modify-css";
 import Base from "@antv/g6/lib/plugins/base";
 import { createMap } from "./map_deckgl";
 
@@ -21,28 +15,20 @@ class DeckGlMap extends Base {
     this.graphContainer = this.graph.get("container");
     this.graphCanvas = this.graph.get("canvas").get("el");
 
-    this.mapContainer = L.DomUtil.create("div");
-    (0, _modifyCss.default)(this.mapContainer, {
-      position: "absolute",
-      width: `${this.graph.getWidth()}px`,
-      height: `${this.graph.getHeight()}px`,
-      position: "absolute",
-      "z-index": 3,
-    });
+    this.mapContainer = document.createElement("div");
+    this.mapContainer.style.position = 'absolute';
+    this.mapContainer.style.width = `${this.graph.getWidth()}px`;
+    this.mapContainer.style.height = `${this.graph.getHeight()}px`;
 
     const mapProps = {
-      options: {
-        position: [0, 0],
-      },
-      graph: this.graph
+      graph: this.graph,
+      options: {},
     };
 
-    createMap(mapProps, this.mapContainer);
-
     this.graphContainer.append(this.mapContainer);
-    (0, _modifyCss.default)(this.graphCanvas, {
-      display: 'none'
-    });
+    this.graphCanvas.style.display = 'none';
+
+    createMap(mapProps, this.mapContainer);
 
   }; // class-methods-use-this init function
 
@@ -53,14 +39,12 @@ class DeckGlMap extends Base {
   };
 
   getContainer = function () {
-    return this.get("container");
+    return this.mapContainer;
   };
 
   destroy = function () {
     this.mapContainer.remove();
-    (0, _modifyCss.default)(this.graphCanvas, {
-      display: 'block'
-    });
+    this.graphCanvas.style.display = 'block';
   };
 
 }

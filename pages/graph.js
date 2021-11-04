@@ -27,7 +27,6 @@ const Graph = () => {
         container: ref.current,
         width: specs.width,
         height: specs.height,
-        // plugins: [minimap],
         modes: {
           default: [
             "drag-canvas",
