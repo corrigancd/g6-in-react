@@ -3,7 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import DeckGL from "@deck.gl/react";
 import { TileLayer } from "@deck.gl/geo-layers";
-import { ArcLayer, BitmapLayer, IconLayer, LineLayer } from "@deck.gl/layers";
+import { ArcLayer, BitmapLayer, IconLayer, LineLayer, SolidPolygonLayer } from "@deck.gl/layers";
 import { MapHelper } from "./map_helper";
 import { ICON_MAPPING } from "./constants";
 
@@ -92,16 +92,6 @@ const Map = (props) => {
       getSourceColor: d => d.inbound,
       getTargetColor: d => d.outbound,
     }),
-    new LineLayer({
-      id: 'line',
-      data: helper.getEdgeData(),
-      getWidth: 4,
-      pickable: true,
-      getHeight: d => d.height,
-      getSourcePosition: d => d.from.coordinates,
-      getTargetPosition: d => d.to.coordinates,
-      getColor: d => d.mono,
-    }),
     new IconLayer({
       id: 'icon-layer',
       data: helper.getIconData(),
@@ -111,12 +101,41 @@ const Map = (props) => {
       iconAtlas: 'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
       iconMapping: ICON_MAPPING,
       getIcon: d => 'marker',
-
       billboard: true,
       sizeScale: 1,
       getPosition: d => d.coordinates,
       getSize: d => 50,
       getColor: d => d.color,
+    }),
+    new LineLayer({
+      id: 'line',
+      data: helper.getEdgeData(),
+      getWidth: 4,
+      pickable: true,
+      getSourcePosition: d => d.from.coordinates,
+      getTargetPosition: d => d.to.coordinates,
+      getColor: d => d.mono,
+    }),
+
+    // These can be re-ordered, just swap them 
+    // todo find a way to order line layer types
+    new SolidPolygonLayer({
+      id: 'germany1',
+      data: helper.getPolygonData('layer 1'),
+      getPolygon: d => d.coordinates,
+      getFillColor: d => [255, 0, 0],
+      filled: true,
+      extruded: false,
+      pickable: true
+    }),
+    new SolidPolygonLayer({
+      id: 'germany2',
+      data: helper.getPolygonData('layer 2'),
+      getPolygon: d => d.coordinates,
+      getFillColor: d => d.color,
+      filled: true,
+      extruded: false,
+      pickable: true
     }),
   ];
 

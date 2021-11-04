@@ -1,5 +1,6 @@
 import React from "react";
 import { WebMercatorViewport } from '@deck.gl/core';
+import { sammpleGeoJson } from "./../../data";
 
 function random_rgba() {
   var o = Math.round, r = Math.random, s = 255;
@@ -151,7 +152,15 @@ export class MapHelper {
         color: random_rgba()
       }
     });
+  }
 
-
+  getPolygonData = (labelPrefix) => {
+    return sammpleGeoJson.features.map(feature => {
+      return {
+        label: labelPrefix + ' ' + feature.properties.name,
+        coordinates: feature.geometry.coordinates,
+        color: [0, 255, 0]
+      };
+    })
   }
 }
