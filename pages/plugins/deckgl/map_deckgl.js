@@ -66,7 +66,7 @@ const Map = (props) => {
       minZoom: 0,
       maxZoom: 19,
       tileSize: 256,
-      zoomOffset: devicePixelRatio === 1 ? -1 : 0,
+      zoomOffset: 0, //devicePixelRatio === 1 ? -1 : 0,
       renderSubLayers: (props) => {
         const {
           bbox: { west, south, east, north },
