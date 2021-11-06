@@ -1,12 +1,5 @@
 
-
-<img src="https://github.com/baizn/g6-in-react/blob/master/demo.gif" />
-
-Overlaying leafletjs on a g6 graph instance
-
-### to do
-
-Use force mode to ensure the set container coords are adhered to - https://g6.antv.vision/en/docs/manual/middle/layout/graph-layout#gforce
+Overlaying leafletjs and deck.gl on a g6 graph instance using a g6 plugin
 
 ### Development
 ```
@@ -18,5 +11,7 @@ $ npm install
 
 # start server
 $ npm start
+
+# navigate to localhost:8080
 
 ```
