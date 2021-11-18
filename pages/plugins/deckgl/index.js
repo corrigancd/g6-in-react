@@ -33,9 +33,9 @@ class DeckGlMap extends Base {
   }; // class-methods-use-this init function
 
   getEvents = function () {
-    return {
-      viewportchange: "updateGrid",
-    };
+    // return {
+    //   viewportchange: "updateGrid",
+    // };
   };
 
   getContainer = function () {

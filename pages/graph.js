@@ -6,7 +6,12 @@ import { data } from "./data";
 
 const specs = {
   width: 1200,
-  height: 900,
+  height: 600,
+};
+
+const current = {
+  x: null,
+  y: null
 };
 
 const { DECKGL, LEAFLET } = {
@@ -111,6 +116,59 @@ const Graph = () => {
     graph.on("edge:mouseleave", (evt) => {
       graph.setItemState(evt.item, "hover", false);
     });
+
+    graph.on("canvas:drag", (evt) => {
+      if (map && map.panBy) {
+        const { canvasX, canvasY } = evt;
+        if (current.x || current.x === 0) {
+          console.log('test: ', current.x, canvasX);
+          const tolerance = 100;
+          let panX = 0;
+          if (canvasX > current.x + tolerance) {
+            panX = current.x + canvasX;
+          } else if (canvasX < current.x + tolerance) {
+            panX = current.x - canvasX;
+          }
+
+          let panY = 0;
+          if (canvasY > current.y + tolerance) {
+            panY = current.y + canvasY;
+          } else if (canvasY < current.y + tolerance) {
+            panY = current.y - canvasY;
+          }
+
+
+
+          console.log('drag: ', 'x: ', evt.canvasX, 'y: ', evt.canvasY);
+
+          // panX = current.x - canvasX;
+          // panY = current.y - canvasY;
+          map.panBy([panX, panY]);
+
+          current.x = canvasX;
+          current.y = canvasY;
+
+        }
+      }
+    })
+
+    graph.on("canvas:dragstart", (evt) => {
+      current.x = evt.canvasX;
+      current.y = evt.canvasY;
+    })
+
+    graph.on("canvas:dragend", (evt) => {
+      current.x = null;
+      current.y = null;
+    })
+
+    graph.on("wheelzoom", (evt) => {
+      console.log('wheelzoom: ', evt);
+      if (evt.wheelDelta > 0) map.zoomIn();
+      if (evt.wheelDelta < 0) map.zoomOut();
+    })
+
+
   }, []);
 
   const toggleMap = (type) => {
@@ -137,7 +195,7 @@ const Graph = () => {
       <button type="button" onClick={() => toggleMap(LEAFLET)}>Toggle leaflet mode</button>
       &nbsp;
       <button type="button" onClick={() => toggleMap(DECKGL)}>Toggle deck.gl mode</button>
-      <div className="graph-container" ref={ref}></div>
+      <div className="graph-container" style={{ width: specs.width, height: specs.height }} ref={ref}></div>
     </>);
 };
 

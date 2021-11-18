@@ -1,5 +1,11 @@
 import React from "react";
-import { CircleMarker, LayerGroup, Polyline, Popup } from "react-leaflet";
+import { renderToStaticMarkup } from 'react-dom/server';
+import { divIcon } from 'leaflet';
+import { Marker, LayerGroup, Polyline, Popup } from "react-leaflet";
+import '@fortawesome/fontawesome-free/js/brands';
+import '@fortawesome/fontawesome-free/js/solid';
+import '@fortawesome/fontawesome-free/js/fontawesome';
+
 
 export class MapHelper {
   getCoords = (nodes) => nodes.map((node) => node.getModel().map);
@@ -36,15 +42,22 @@ export class MapHelper {
 
   createCirclesFromNodes() {
     const nodes = this.toModel(this.nodes);
+    const iconMarkup = renderToStaticMarkup(<i className="fab fa-accessible-icon"></i>);
+    const customMarkerIcon = divIcon({
+      html: iconMarkup,
+    });
+
     return nodes.map((node) => {
       return (
-        <CircleMarker
+
+
+        <Marker
           key={node.id}
-          center={[node.map.lat, node.map.lon]}
-          radius={node.size}
+          position={[node.map.lat, node.map.lon]}
+          icon={customMarkerIcon}
         >
           <Popup>The city is {node.label}</Popup>
-        </CircleMarker>
+        </Marker>
       );
     });
   }
@@ -84,4 +97,13 @@ export class MapHelper {
     const latLngsToUse = latLngs ? latLngs : this.latLngs;
     this.leafletMap.fitBounds(latLngsToUse, { padding: [5, 5] });
   };
+
+  panBy = (point) => {
+    console.log('panning by: ', point, this.leafletMap.layerPointToLatLng(point));
+    this.leafletMap.layerPointToLatLng(point);
+    this.leafletMap.panBy(point, { animate: false });
+  };
+
+  zoomIn = () => this.leafletMap.zoomIn();
+  zoomOut = () => this.leafletMap.zoomOut();
 }

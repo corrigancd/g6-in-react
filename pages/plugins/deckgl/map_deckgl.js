@@ -91,6 +91,7 @@ const Map = (props) => {
       getTargetPosition: d => d.to.coordinates,
       getSourceColor: d => d.inbound,
       getTargetColor: d => d.outbound,
+      onClick: d => console.log(d),
     }),
     new IconLayer({
       id: 'icon-layer',

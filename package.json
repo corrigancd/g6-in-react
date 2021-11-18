@@ -28,6 +28,7 @@
   "homepage": "https://github.com/baizn/g6-in-react#readme",
   "dependencies": {
     "@antv/g6": "^3.4.0",
+    "@fortawesome/fontawesome-free": "^5.15.4",
     "@react-leaflet/core": "^1.0.2",
     "antd": "^3.23.5",
     "deck.gl": "^8.6.0",
