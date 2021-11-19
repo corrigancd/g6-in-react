@@ -3,6 +3,7 @@ import G6 from "@antv/g6";
 import { ReactLeafletMap } from "./plugins/react_leaflet";
 import { DeckGlMap } from "./plugins/deckgl";
 import { data } from "./data";
+import { isNumber } from "lodash";
 
 const specs = {
   width: 1200,
@@ -124,33 +125,25 @@ const Graph = () => {
     graph.on("canvas:drag", (evt) => {
       if (map && map.panBy) {
         const { canvasX, canvasY } = evt;
-        if (current.x || current.x === 0) {
-          const tolerance = 50;
-          let panX = 0;
-          if (canvasX > current.x + tolerance) {
-            panX = current.x + canvasX;
-          } else if (canvasX < current.x + tolerance) {
-            panX = current.x - canvasX;
+        if (current.x !== null) {
+
+          const getPanByValue = (curr, canvas) => {
+            let value = 0;
+            if (canvas > curr) {
+              value = (canvas - curr) * -1;
+            } else if (canvas < curr) {
+              value = curr - canvas;
+            }
+            return value;
           }
 
-          let panY = 0;
-          if (canvasY > current.y + tolerance) {
-            panY = current.y + canvasY;
-          } else if (canvasY < current.y + tolerance) {
-            panY = current.y - canvasY;
-          }
-
-
-
-          // console.log('drag: ', 'x: ', evt.canvasX, 'y: ', evt.canvasY);
-
-          // panX = current.x - canvasX;
-          // panY = current.y - canvasY;
-          map.panBy([panX, panY]);
+          const panX = getPanByValue(current.x, canvasX);
+          const panY = getPanByValue(current.y, canvasY);
 
           current.x = canvasX;
           current.y = canvasY;
 
+          map.panBy([panX, panY]);
         }
       }
     })
@@ -159,9 +152,8 @@ const Graph = () => {
       current.x = evt.canvasX;
       current.y = evt.canvasY;
     })
-    
+
     graph.on("canvas:dragend", (evt) => {
-      // map.setNodePositions();
       current.x = null;
       current.y = null;
     })

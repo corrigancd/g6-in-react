@@ -26,7 +26,6 @@ class ReactLeafletMap extends Base {
       position: "absolute",
       width: `${this.graph.getWidth()}px`,
       height: `${this.graph.getHeight()}px`,
-      position: "absolute",
       "z-index": -1,
     });
 

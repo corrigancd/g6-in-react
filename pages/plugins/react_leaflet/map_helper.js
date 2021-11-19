@@ -8,7 +8,9 @@ import '@fortawesome/fontawesome-free/js/fontawesome';
 
 
 export class MapHelper {
-  getCoords = (nodes) => nodes.map((node) => node.getModel().map);
+  getCoords = (nodes) => nodes.filter((node) => !node.getModel().dummy)
+    .map(node => node.getModel().map);
+
   updateNodesAndEdges = () => {
     this.edges = this.graph.getEdges();
     this.nodes = this.graph.getNodes();
@@ -51,19 +53,20 @@ export class MapHelper {
       html: iconMarkup,
     });
 
-    return nodes.map((node) => {
-      return (
+    return nodes.filter((node) => !node.dummy)
+      .map((node) => {
+        return (
 
 
-        <Marker
-          key={node.id}
-          position={[node.map.lat, node.map.lon]}
-          icon={customMarkerIcon}
-        >
-          <Popup>The city is {node.label}</Popup>
-        </Marker>
-      );
-    });
+          <Marker
+            key={node.id}
+            position={[node.map.lat, node.map.lon]}
+            icon={customMarkerIcon}
+          >
+            <Popup>The city is {node.label}</Popup>
+          </Marker>
+        );
+      });
   }
 
   createLinesFromEdges() {
@@ -119,15 +122,12 @@ export class MapHelper {
   panBy = (point) => {
     // this.leafletMap.layerPointToLatLng(point);
     this.leafletMap.panBy(point, { animate: false });
-    this.setNodePositions();
   };
 
   zoomIn = () => {
     this.leafletMap.zoomIn();
-    this.setNodePositions();
   }
   zoomOut = () => {
     this.leafletMap.zoomOut();
-    this.setNodePositions();
   }
 }
