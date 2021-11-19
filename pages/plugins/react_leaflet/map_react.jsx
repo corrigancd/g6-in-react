@@ -18,6 +18,9 @@ class Map {
 			const leafletMap = useMap();
 			this.helper.setMap(leafletMap);
 			this.helper.fitBounds();
+      setTimeout(() => { 
+        this.helper.setNodePositions();
+      }, 500);
 			return null;
 		}
 

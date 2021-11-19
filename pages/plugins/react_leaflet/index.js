@@ -27,7 +27,7 @@ class ReactLeafletMap extends Base {
       width: `${this.graph.getWidth()}px`,
       height: `${this.graph.getHeight()}px`,
       position: "absolute",
-      "z-index": 3,
+      "z-index": -1,
     });
 
     const mapProps = {
@@ -39,7 +39,7 @@ class ReactLeafletMap extends Base {
 
     this.map = getMap(mapProps, this.mapContainer);
 
-    this.graphContainer.append(this.mapContainer);
+    this.graphContainer.prepend(this.mapContainer);
     // (0, _modifyCss.default)(this.graphCanvas, {
     //   display: 'none'
     // });
@@ -56,6 +56,10 @@ class ReactLeafletMap extends Base {
     this.map.helper.panBy(point)
   }
 
+  setNodePositions = function() {
+    this.map.helper.setNodePositions();
+  }
+
   zoomIn = function (point) {
     this.map.helper.zoomIn()
   }
@@ -69,7 +73,7 @@ class ReactLeafletMap extends Base {
   };
 
   destroy = function () {
-    // this.mapContainer.remove();
+    this.mapContainer.remove();
     // (0, _modifyCss.default)(this.graphCanvas, {
     //   display: 'block'
     // });

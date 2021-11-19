@@ -6,7 +6,7 @@ import { data } from "./data";
 
 const specs = {
   width: 1200,
-  height: 600,
+  height: 900,
 };
 
 const current = {
@@ -35,7 +35,11 @@ const Graph = () => {
         modes: {
           default: [
             "drag-canvas",
-            "zoom-canvas",
+            'zoom-canvas',
+            // {
+            //   type: 'zoom-canvas',
+            //   sensitivity: ,
+            // },
             {
               type: "tooltip", // Tooltip
               formatText(model) {
@@ -121,8 +125,7 @@ const Graph = () => {
       if (map && map.panBy) {
         const { canvasX, canvasY } = evt;
         if (current.x || current.x === 0) {
-          console.log('test: ', current.x, canvasX);
-          const tolerance = 100;
+          const tolerance = 50;
           let panX = 0;
           if (canvasX > current.x + tolerance) {
             panX = current.x + canvasX;
@@ -139,7 +142,7 @@ const Graph = () => {
 
 
 
-          console.log('drag: ', 'x: ', evt.canvasX, 'y: ', evt.canvasY);
+          // console.log('drag: ', 'x: ', evt.canvasX, 'y: ', evt.canvasY);
 
           // panX = current.x - canvasX;
           // panY = current.y - canvasY;
@@ -156,14 +159,14 @@ const Graph = () => {
       current.x = evt.canvasX;
       current.y = evt.canvasY;
     })
-
+    
     graph.on("canvas:dragend", (evt) => {
+      // map.setNodePositions();
       current.x = null;
       current.y = null;
     })
 
     graph.on("wheelzoom", (evt) => {
-      console.log('wheelzoom: ', evt);
       if (evt.wheelDelta > 0) map.zoomIn();
       if (evt.wheelDelta < 0) map.zoomOut();
     })

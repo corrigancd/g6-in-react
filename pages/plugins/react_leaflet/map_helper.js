@@ -18,6 +18,10 @@ export class MapHelper {
     return items.map((item) => item.getModel());
   }
 
+  toModel(items) {
+    return items.map((item) => item.getModel());
+  }
+
   getLatLngs = (nodes) => {
     const coords = this.getCoords(nodes);
     return coords.map((coord) => L.latLng(coord));
@@ -98,12 +102,32 @@ export class MapHelper {
     this.leafletMap.fitBounds(latLngsToUse, { padding: [5, 5] });
   };
 
+  setNodePositions = () => {
+    const data = this.graph.save();
+    data.nodes.map((node) => {
+      const containerPoint = this.leafletMap.latLngToContainerPoint([node.map.lat, node.map.lon]);
+      node.fx = containerPoint.x;
+      node.fy = containerPoint.y;
+      node.x = containerPoint.x;
+      node.y = containerPoint.y;
+    });
+
+    this.graph.data(data);
+    this.graph.refresh();
+  }
+
   panBy = (point) => {
-    console.log('panning by: ', point, this.leafletMap.layerPointToLatLng(point));
-    this.leafletMap.layerPointToLatLng(point);
+    // this.leafletMap.layerPointToLatLng(point);
     this.leafletMap.panBy(point, { animate: false });
+    this.setNodePositions();
   };
 
-  zoomIn = () => this.leafletMap.zoomIn();
-  zoomOut = () => this.leafletMap.zoomOut();
+  zoomIn = () => {
+    this.leafletMap.zoomIn();
+    this.setNodePositions();
+  }
+  zoomOut = () => {
+    this.leafletMap.zoomOut();
+    this.setNodePositions();
+  }
 }
