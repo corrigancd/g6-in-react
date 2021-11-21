@@ -122,48 +122,6 @@ const Graph = () => {
       graph.setItemState(evt.item, "hover", false);
     });
 
-    graph.on("canvas:drag", (evt) => {
-      if (map && map.panBy) {
-        const { canvasX, canvasY } = evt;
-        if (current.x !== null) {
-
-          const getPanByValue = (curr, canvas) => {
-            let value = 0;
-            if (canvas > curr) {
-              value = (canvas - curr) * -1;
-            } else if (canvas < curr) {
-              value = curr - canvas;
-            }
-            return value;
-          }
-
-          const panX = getPanByValue(current.x, canvasX);
-          const panY = getPanByValue(current.y, canvasY);
-
-          current.x = canvasX;
-          current.y = canvasY;
-
-          map.panBy([panX, panY]);
-        }
-      }
-    })
-
-    graph.on("canvas:dragstart", (evt) => {
-      current.x = evt.canvasX;
-      current.y = evt.canvasY;
-    })
-
-    graph.on("canvas:dragend", (evt) => {
-      current.x = null;
-      current.y = null;
-    })
-
-    graph.on("wheelzoom", (evt) => {
-      if (evt.wheelDelta > 0) map.zoomIn();
-      if (evt.wheelDelta < 0) map.zoomOut();
-    })
-
-
   }, []);
 
   const toggleMap = (type) => {

@@ -8,46 +8,31 @@ import '@fortawesome/fontawesome-free/js/fontawesome';
 
 
 export class MapHelper {
-  getCoords = (nodes) => nodes.filter((node) => !node.getModel().dummy)
-    .map(node => node.getModel().map);
 
-  updateNodesAndEdges = () => {
-    this.edges = this.graph.getEdges();
-    this.nodes = this.graph.getNodes();
-  };
+  // retrieves all valid nodes (there are currently 4 additional ones at the extremes of the map)
+  getCoords = (nodes) => nodes.filter((node) => !node.getModel().dummy).map(node => node.getModel().map);
 
-  toModel(items) {
-    return items.map((item) => item.getModel());
-  }
+  toModel = (items) => items.map((item) => item.getModel());
 
-  toModel(items) {
-    return items.map((item) => item.getModel());
-  }
-
-  getLatLngs = (nodes) => {
-    const coords = this.getCoords(nodes);
-    return coords.map((coord) => L.latLng(coord));
-  };
+  getLatLngs = (nodes) => this.getCoords(nodes).map((coord) => L.latLng(coord));
 
   setMap = (map) => (this.leafletMap = map);
 
   constructor({ graph }) {
     this.graph = graph;
-    this.updateNodesAndEdges();
-    this.coords = this.getCoords(this.nodes);
-    this.latLngs = this.getLatLngs(this.nodes);
   }
 
   getCenter = () => {
+    const coords = this.getCoords(this.graph.getNodes());
     const getAvg = (type) => {
-      const sum = this.coords.reduce((total, value) => total + value[type], 0);
-      return sum / this.nodes.length;
+      const sum = coords.reduce((total, value) => total + value[type], 0);
+      return sum / coords.length;
     };
     return [getAvg("lat"), getAvg("lon")];
   };
 
   createCirclesFromNodes() {
-    const nodes = this.toModel(this.nodes);
+    const nodes = this.toModel(this.graph.getNodes());
     const iconMarkup = renderToStaticMarkup(<i className="fab fa-accessible-icon"></i>);
     const customMarkerIcon = divIcon({
       html: iconMarkup,
@@ -56,8 +41,6 @@ export class MapHelper {
     return nodes.filter((node) => !node.dummy)
       .map((node) => {
         return (
-
-
           <Marker
             key={node.id}
             position={[node.map.lat, node.map.lon]}
@@ -70,8 +53,8 @@ export class MapHelper {
   }
 
   createLinesFromEdges() {
-    const edges = this.toModel(this.edges);
-    const nodes = this.toModel(this.nodes);
+    const edges = this.toModel(this.graph.getEdges());
+    const nodes = this.toModel(this.graph.getNodes());
     return edges.map((edge) => {
       const sourceNode = nodes.find((node) => node.id === edge.source);
       const targetNode = nodes.find((node) => node.id === edge.target);
@@ -91,7 +74,6 @@ export class MapHelper {
   }
 
   createLayerFromModel = () => {
-    this.updateNodesAndEdges();
     return (
       <>
         {<LayerGroup>{this.createLinesFromEdges()}</LayerGroup>}
@@ -99,35 +81,4 @@ export class MapHelper {
       </>
     );
   };
-
-  fitBounds = (latLngs) => {
-    const latLngsToUse = latLngs ? latLngs : this.latLngs;
-    this.leafletMap.fitBounds(latLngsToUse, { padding: [5, 5] });
-  };
-
-  setNodePositions = () => {
-    const data = this.graph.save();
-    data.nodes.map((node) => {
-      const containerPoint = this.leafletMap.latLngToContainerPoint([node.map.lat, node.map.lon]);
-      node.fx = containerPoint.x;
-      node.fy = containerPoint.y;
-      node.x = containerPoint.x;
-      node.y = containerPoint.y;
-    });
-
-    this.graph.data(data);
-    this.graph.refresh();
-  }
-
-  panBy = (point) => {
-    // this.leafletMap.layerPointToLatLng(point);
-    this.leafletMap.panBy(point, { animate: false });
-  };
-
-  zoomIn = () => {
-    this.leafletMap.zoomIn();
-  }
-  zoomOut = () => {
-    this.leafletMap.zoomOut();
-  }
 }

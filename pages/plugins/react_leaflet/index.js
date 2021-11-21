@@ -51,28 +51,13 @@ class ReactLeafletMap extends Base {
     // };
   };
 
-  panBy = function (point) {
-    this.map.helper.panBy(point)
-  }
-
-  setNodePositions = function() {
-    this.map.helper.setNodePositions();
-  }
-
-  zoomIn = function (point) {
-    this.map.helper.zoomIn()
-  }
-
-  zoomOut = function (point) {
-    this.map.helper.zoomOut()
-  }
-
   getContainer = function () {
     return this.get("container");
   };
 
   destroy = function () {
     this.mapContainer.remove();
+    this.map.linker.destroyGraphEvents();
     // (0, _modifyCss.default)(this.graphCanvas, {
     //   display: 'block'
     // });
