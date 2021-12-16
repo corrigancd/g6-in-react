@@ -101,34 +101,6 @@ export const data = {
       size: 15,
       label: "oslo",
       map: { lat: 60.10079643124693, lon: 10.542068401401929 },
-    },
-    {
-      id: "BR",
-      size: 0,
-      dummy: true,
-      label: "br",
-      map: { lat: -90, lon: 180 },
-    },
-    {
-      id: "BL",
-      size: 0,
-      dummy: true,
-      label: "bl",
-      map: { lat: -90, lon: -180 },
-    },
-    {
-      id: "TR",
-      size: 0,
-      dummy: true,
-      label: "tr",
-      map: { lat: 90, lon: 180 },
-    },
-    {
-      id: "TL",
-      size: 0,
-      dummy: true,
-      label: "tl",
-      map: { lat: 90, lon: -180 },
     }
   ],
   edges: [

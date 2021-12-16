@@ -6,7 +6,15 @@ import '@fortawesome/fontawesome-free/js/brands';
 import '@fortawesome/fontawesome-free/js/solid';
 import '@fortawesome/fontawesome-free/js/fontawesome';
 
+import { throttle } from 'lodash';
 
+const MOVED = Object.freeze({
+  pos: 'plus',
+  neg: 'minus',
+  none: 'none',
+  X: 'movedX',
+  Y: 'movedY'
+});
 export class GraphMapEventLinker {
   getCoords = (nodes) => nodes.filter((node) => !node.getModel().dummy)
     .map(node => node.getModel().map);
@@ -24,7 +32,7 @@ export class GraphMapEventLinker {
 
   constructor({ graph }) {
     this.graph = graph;
-    this.current = { x: null, y: null };
+    this.coords = { x: null, y: null, startX: null, startY: null, movedX: null, movedY: null };
     this.events = [];
     this.setEvents();
   }
@@ -36,66 +44,107 @@ export class GraphMapEventLinker {
 
   setNodePositions = () => {
     const data = this.graph.save();
+
+    data.nodes = data.nodes.concat([{
+      id: "BR",
+      size: 10,
+      dummy: true,
+      label: "br",
+      map: { lat: -90, lon: 180 },
+    },
+    {
+      id: "BL",
+      size: 10,
+      dummy: true,
+      label: "bl",
+      map: { lat: -90, lon: -180 },
+    },
+    {
+      id: "TR",
+      size: 10,
+      dummy: true,
+      label: "tr",
+      map: { lat: 90, lon: 180 },
+    },
+    {
+      id: "TL",
+      size: 10,
+      dummy: true,
+      label: "tl",
+      map: { lat: 90, lon: -180 },
+    }]);
+
     data.nodes.map((node) => {
       const containerPoint = this.leafletMap.latLngToContainerPoint(node.map);
-      if (node.id === 'muscat') {
-        const containerPoint2 = this.leafletMap.latLngToContainerPoint(node.map);
-        console.log(containerPoint2);
-      }
       node.fx = containerPoint.x;
       node.fy = containerPoint.y;
       node.x = containerPoint.x;
       node.y = containerPoint.y;
     });
 
-    this.graph.data(data);
+    console.log(data);
+    this.graph.changeData(data);
     this.graph.refresh();
+    this.fitBounds();
   }
 
+
+  getPanByValue = (curr, canvas) => {
+    let value = 0;
+    if (canvas > curr) {
+      value = (canvas - curr) * -1;
+    } else if (canvas < curr) {
+      value = curr - canvas;
+    }
+    return value;
+  }
+
+
+  // /**
+  //  * 
+  //  * @param {number} start The starting position of the (X/Y) axis after panning
+  //  * @param {number} current The current position of the (X/Y) axis after dragging
+  //  * @returns {string} value The direction that happened
+  //  */
+  // getPanDirection = (start, current, type) => {
+  //   let value = MOVED.none;
+  //   if (start > current) { // map panned right
+  //     value = MOVED.pos;
+  //     // console.log((start + current), this.coords[type], ((start + current) + this.coords[type]));
+  //   } else if (start < current) { // map panned left
+  //     value = MOVED.neg;
+  //     // console.log(start - current, this.coords[type], ((start - current) - this.coords[type]));
+  //   }
+  //   console.log(value);
+  //   return value;
+  // }
+
   panBy = (evt) => {
-    const nodes = this.toModel(this.graph.getNodes());
-    nodes.map((node) => {
-      if (node.id === 'muscat') {
-        const containerPoint = this.leafletMap.latLngToContainerPoint(node.map);
-        console.log(containerPoint);
-      }
-    })
     const { canvasX, canvasY } = evt;
-    console.log(evt);
-    if (this.current.x !== null) {
+    // console.log(evt);
+    if (this.coords.x !== null) {
+      // console.log(this.coords);
+      const panX = this.getPanByValue(this.coords.x, canvasX);
+      const panY = this.getPanByValue(this.coords.y, canvasY);
 
-      const getPanByValue = (curr, canvas) => {
-        let value = 0;
-        if (canvas > curr) {
-          value = (canvas - curr) * -1;
-        } else if (canvas < curr) {
-          value = curr - canvas;
-        }
-        return value;
-      }
+      this.coords.x = canvasX;
+      this.coords.y = canvasY;
 
-      const panX = getPanByValue(this.current.x, canvasX);
-      const panY = getPanByValue(this.current.y, canvasY);
-
-      this.current.x = canvasX;
-      this.current.y = canvasY;
+      this.coords.movedX += panX;
+      this.coords.movedY += panY;
 
       this.leafletMap.panBy([panX, panY], { animate: false });
     }
   };
 
-  dragStart = evt => {
-    this.current.x = evt.canvasX;
-    this.current.y = evt.canvasY;
-  }
+  dragStart = throttle(evt => {
+    this.coords.startX = this.coords.x = evt.canvasX;
+    this.coords.startY = this.coords.y = evt.canvasY;
+  }, 200, { 'trailing': false })
 
-  dragEnd = (evt) => {
-    console.log('dragEnd');
-    this.current.x = null;
-    this.current.y = null;
-    // this.leafletMap.invalidateSize();
-    // this.setNodePositions();
-  }
+  dragEnd = throttle(() => {
+    Object.keys(this.coords).forEach(key => this.coords[key] = null);
+  }, 200, { 'trailing': false })
 
   zoomIn = (evt) => {
     this.leafletMap.zoomIn();
@@ -116,7 +165,7 @@ export class GraphMapEventLinker {
       },
       {
         name: "canvas:dragend",
-        handler: () => this.dragEnd()
+        handler: (evt) => this.dragEnd(evt)
       },
       {
         name: "wheelzoom",

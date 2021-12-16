@@ -23,6 +23,7 @@ class Map {
 			this.linker.setMap(leafletMap);
 			this.linker.fitBounds();
 			setTimeout(() => {
+        console.log('here');
 				this.linker.setNodePositions();
 			}, 500);
 			return null;
