@@ -38,6 +38,8 @@ class Map {
 				center={this.helper.getCenter()}
 				zoom={1}
 				scrollWheelZoom={true}
+        worldCopyJump={false}
+        maxBoundsViscosity={0}
 				style={{ height: `${this.props.graph.getHeight()}px` }}
 			>
 				<SetLeafletMap />

@@ -12,9 +12,14 @@ const MOVED = Object.freeze({
   pos: 'plus',
   neg: 'minus',
   none: 'none',
-  X: 'movedX',
-  Y: 'movedY'
+  // X: 'movedX',
+  // Y: 'movedY'
 });
+
+const MAX = { lat: 85, lon: 360, pointX: 2880, pointY: 1440 };
+
+const defaultDragState = { x: null, y: null, abs: { x: null, y: null }, absCenter: { absLat: null, absLon: null } };
+
 export class GraphMapEventLinker {
   getCoords = (nodes) => nodes.filter((node) => !node.getModel().dummy)
     .map(node => node.getModel().map);
@@ -32,14 +37,15 @@ export class GraphMapEventLinker {
 
   constructor({ graph }) {
     this.graph = graph;
-    this.coords = { x: null, y: null, startX: null, startY: null, movedX: null, movedY: null };
+    this.dragState = defaultDragState;
+    this.prevDragEnd = { x: null, y: null };
     this.events = [];
     this.setEvents();
   }
 
   fitBounds = () => {
     const latLngs = this.getLatLngs(this.graph.getNodes());
-    this.leafletMap.fitBounds(latLngs); //, { padding: [5, 5] });
+    // this.leafletMap.fitBounds(latLngs); //, { padding: [5, 5] });
   };
 
   setNodePositions = () => {
@@ -50,28 +56,28 @@ export class GraphMapEventLinker {
       size: 10,
       dummy: true,
       label: "br",
-      map: { lat: -90, lon: 180 },
+      map: { lat: -MAX.pointY, lon: MAX.pointX },
     },
     {
       id: "BL",
       size: 10,
       dummy: true,
       label: "bl",
-      map: { lat: -90, lon: -180 },
+      map: { lat: -MAX.pointY, lon: -MAX.pointX },
     },
     {
       id: "TR",
       size: 10,
       dummy: true,
       label: "tr",
-      map: { lat: 90, lon: 180 },
+      map: { lat: MAX.pointY, lon: MAX.pointX },
     },
     {
       id: "TL",
       size: 10,
       dummy: true,
       label: "tl",
-      map: { lat: 90, lon: -180 },
+      map: { lat: MAX.pointY, lon: -MAX.pointX },
     }]);
 
     data.nodes.map((node) => {
@@ -82,7 +88,6 @@ export class GraphMapEventLinker {
       node.y = containerPoint.y;
     });
 
-    console.log(data);
     this.graph.changeData(data);
     this.graph.refresh();
     this.fitBounds();
@@ -110,46 +115,85 @@ export class GraphMapEventLinker {
   //   let value = MOVED.none;
   //   if (start > current) { // map panned right
   //     value = MOVED.pos;
-  //     // console.log((start + current), this.coords[type], ((start + current) + this.coords[type]));
+  //     // console.log((start + current), this.dragState[type], ((start + current) + this.dragState[type]));
   //   } else if (start < current) { // map panned left
   //     value = MOVED.neg;
-  //     // console.log(start - current, this.coords[type], ((start - current) - this.coords[type]));
+  //     // console.log(start - current, this.dragState[type], ((start - current) - this.dragState[type]));
   //   }
   //   console.log(value);
   //   return value;
   // }
 
-  panBy = (evt) => {
+  panBy = throttle((evt) => {
     const { canvasX, canvasY } = evt;
     // console.log(evt);
-    if (this.coords.x !== null) {
-      // console.log(this.coords);
-      const panX = this.getPanByValue(this.coords.x, canvasX);
-      const panY = this.getPanByValue(this.coords.y, canvasY);
+    if (this.dragState.x !== null) {
+      // console.log(this.dragState);
+      const panX = this.getPanByValue(this.dragState.x, canvasX);
+      const panY = this.getPanByValue(this.dragState.y, canvasY);
 
-      this.coords.x = canvasX;
-      this.coords.y = canvasY;
+      // this.dragState.movedX += panX;
+      // this.dragState.movedY += panY;
 
-      this.coords.movedX += panX;
-      this.coords.movedY += panY;
+      const center = this.leafletMap.getCenter();
 
-      this.leafletMap.panBy([panX, panY], { animate: false });
+      // absolute values based on the current drag event
+      const abs = {
+        lon: Math.abs(center.lng),
+        lat: Math.abs(center.lat),
+        x: Math.abs(canvasX),
+        y: Math.abs(canvasY)
+      }
+
+      console.log(panY, abs.lat, this.dragState.abs.y, abs.y);
+      // console.log(panX, abs.lon, this.dragState.abs.x, abs.x);
+
+      const panLeafletMap = () => {
+        const xMin = panX < 0 && this.dragState.abs.x < abs.x;
+        const xMax = panX > 0 && this.dragState.abs.x > abs.x;
+
+        const yMin = panY < 0 && this.dragState.abs.y < abs.y;
+        const yMax = panY > 0 && this.dragState.abs.y > abs.y;
+
+        console.log(yMin, yMax);
+
+        return xMin || xMax || yMin || yMax;
+      }
+
+      if (panX !== 0 || panY !== 0) {
+        if (panLeafletMap()) { // || (abs.lon < MAX.lon && abs.lat < MAX.lat)) {
+          // pan the leafletMap if the center is within context
+          this.leafletMap.panBy([panX, panY], { animate: false });
+        } else {
+          // pan the graph the same amount the opposite direction to 
+          // the drag so the nodes don't move relative to the leafletMap
+          console.log('defaulting to original view ', panX, panY);
+          this.graph.translate(panX, panY);
+        }
+        this.dragState.abs = { x: abs.x, y: abs.y };
+        this.dragState.x = canvasX;
+        this.dragState.y = canvasY;
+      }
     }
-  };
+  }, 0, { 'trailing': false });
 
   dragStart = throttle(evt => {
-    this.coords.startX = this.coords.x = evt.canvasX;
-    this.coords.startY = this.coords.y = evt.canvasY;
+    // console.log(this.prevDragEnd);
+    this.dragState.x = evt.canvasX;
+    this.dragState.y = evt.canvasY;
   }, 200, { 'trailing': false })
 
   dragEnd = throttle(() => {
-    Object.keys(this.coords).forEach(key => this.coords[key] = null);
+    this.prevDragEnd = { x: this.dragState.x, y: this.dragState.y };
+    this.dragState = defaultDragState;
   }, 200, { 'trailing': false })
 
   zoomIn = (evt) => {
+    console.log('in: ', this.graph.getZoom(), this.leafletMap.getZoom());
     this.leafletMap.zoomIn();
   }
   zoomOut = (evt) => {
+    console.log('out: ', this.graph.getZoom(), this.leafletMap.getZoom());
     this.leafletMap.zoomOut();
   }
 
@@ -170,9 +214,10 @@ export class GraphMapEventLinker {
       {
         name: "wheelzoom",
         handler: (evt) => {
+          console.log(evt)
           // todo some logic to get the points working
-          if (evt.wheelDelta > 0) this.leafletMap.zoomIn();
-          if (evt.wheelDelta < 0) this.leafletMap.zoomOut();
+          if (evt.wheelDelta > 0) this.zoomIn();
+          if (evt.wheelDelta < 0) this.zoomOut();
         }
       },
     ]

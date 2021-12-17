@@ -6,9 +6,7 @@ Overlaying leafletjs on a g6 graph instance
 
 ### to do
 
-Use force mode to ensure the set container coords are adhered to - https://g6.antv.vision/en/docs/manual/middle/layout/graph-layout#gforce
-investigate how to set nodes properly after drag has stopped
-
+Investigate how to set the container points when panning outside of latitude bounds OR a way to stop panning both containers when they would go out of sync
 
 ### Development
 ```

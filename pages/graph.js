@@ -36,11 +36,11 @@ const Graph = () => {
         modes: {
           default: [
             "drag-canvas",
-            'zoom-canvas',
-            // {
-            //   type: 'zoom-canvas',
-            //   sensitivity: ,
-            // },
+            // 'zoom-canvas',
+            {
+              type: 'zoom-canvas',
+              sensitivity: 1,
+            },
             {
               type: "tooltip", // Tooltip
               formatText(model) {
