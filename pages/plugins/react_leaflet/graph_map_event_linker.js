@@ -16,7 +16,8 @@ const MOVED = Object.freeze({
   // Y: 'movedY'
 });
 
-const MAX = { lat: 85, lon: 360, pointX: 2880, pointY: 1440 };
+// const MAX = { lat: 85, lon: 360, pointX: 2880, pointY: 1440 };
+const MAX = { lat: 85, lon: 360, pointX: 180, pointY: 1440 };
 
 const defaultDragState = { x: null, y: null, abs: { x: null, y: null }, absCenter: { absLat: null, absLon: null } };
 
@@ -45,7 +46,7 @@ export class GraphMapEventLinker {
 
   fitBounds = () => {
     const latLngs = this.getLatLngs(this.graph.getNodes());
-    // this.leafletMap.fitBounds(latLngs); //, { padding: [5, 5] });
+    this.leafletMap.fitBounds(latLngs); //, { padding: [5, 5] });
   };
 
   setNodePositions = () => {
@@ -145,29 +146,42 @@ export class GraphMapEventLinker {
         y: Math.abs(canvasY)
       }
 
-      console.log(panY, abs.lat, this.dragState.abs.y, abs.y);
+
+      // console.log(panY, abs.lat, this.dragState.abs.y, abs.y);
       // console.log(panX, abs.lon, this.dragState.abs.x, abs.x);
 
       const panLeafletMap = () => {
         const xMin = panX < 0 && this.dragState.abs.x < abs.x;
         const xMax = panX > 0 && this.dragState.abs.x > abs.x;
 
-        const yMin = panY < 0 && this.dragState.abs.y < abs.y;
-        const yMax = panY > 0 && this.dragState.abs.y > abs.y;
+        const bounds = this.leafletMap.getBounds();
+        const pixelBounds = this.leafletMap.getPixelBounds(); 
+        const boundsNorth = bounds.getNorth();
+        const boundsSouth = bounds.getSouth()
 
-        console.log(yMin, yMax);
+        // const overNorth =  
+        // console.log(boundsNorth, boundsSouth, Math.abs(boundsNorth - boundsSouth), Math.abs(boundsNorth - boundsSouth) < 3);
 
-        return xMin || xMax || yMin || yMax;
+        const latThreshold = 3;
+
+        console.log(pixelBounds.max.y, pixelBounds.min.y)
+        const yMin = pixelBounds.min.y < 0;
+        const yMax = pixelBounds.max.y > 0;
+
+        // console.log(yMin, yMax);
+
+        return xMin || xMax || yMax; //|| yMin;
       }
 
       if (panX !== 0 || panY !== 0) {
         if (panLeafletMap()) { // || (abs.lon < MAX.lon && abs.lat < MAX.lat)) {
           // pan the leafletMap if the center is within context
+          console.log('pan leaf ', panX, panY);
           this.leafletMap.panBy([panX, panY], { animate: false });
         } else {
           // pan the graph the same amount the opposite direction to 
           // the drag so the nodes don't move relative to the leafletMap
-          console.log('defaulting to original view ', panX, panY);
+          console.log('pan graph ', panX, panY);
           this.graph.translate(panX, panY);
         }
         this.dragState.abs = { x: abs.x, y: abs.y };

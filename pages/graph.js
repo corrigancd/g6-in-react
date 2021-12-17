@@ -7,7 +7,7 @@ import { isNumber } from "lodash";
 
 const specs = {
   width: 1200,
-  height: 900,
+  height: 800,
 };
 
 const current = {
